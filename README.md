@@ -24,9 +24,18 @@ Go to the Web Clipper tab and copy the Auth Token.
 
 ```
 call ddu#custom#patch_global(#{
+    \   sources: [
+    \       #{name: 'joplin'},
+    \   ],
     \   sourceParams: #{
     \     joplin: #{ token: 'JOPLIN_TOKEN_XXXX' },
     \   },
+    \   kindOptions: #{
+    \     joplin: #{
+    \       defaultAction: 'open',
+    \     },
+    \   },
+    \ })
 ```
 
 ## Author
