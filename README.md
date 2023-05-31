@@ -28,7 +28,10 @@ call ddu#custom#patch_global(#{
     \       #{name: 'joplin'},
     \   ],
     \   sourceParams: #{
-    \     joplin: #{ token: 'JOPLIN_TOKEN_XXXX' },
+    \     joplin: #{ 
+    \       token: 'JOPLIN_TOKEN_XXXX',
+    \       fullPath: v:true,
+    \     },
     \   },
     \   kindOptions: #{
     \     joplin: #{

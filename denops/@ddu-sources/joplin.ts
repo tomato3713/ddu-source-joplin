@@ -6,11 +6,16 @@ import {
 } from "https://deno.land/x/ddu_vim@v2.2.0/types.ts";
 import { Denops } from "https://deno.land/x/ddu_vim@v2.2.0/deps.ts";
 import { ActionData } from "../@ddu-kinds/joplin.ts";
-import { config, noteApi } from "https://esm.sh/joplin-api@0.5.1";
+import {
+  config,
+  folderApi,
+  FolderListAllRes,
+} from "https://esm.sh/joplin-api@0.5.1";
 // https://www.npmjs.com/package/joplin-api
 
 type Params = {
   token: string;
+  fullPath: boolean;
 };
 
 export class Source extends BaseSource<Params> {
@@ -27,25 +32,40 @@ export class Source extends BaseSource<Params> {
       async start(controller) {
         config.token = args.sourceParams.token;
 
-        const tree = async () => {
+        const getAllNotes = async (fullPath: boolean) => {
           const items: Item<ActionData>[] = [];
-          for (let pageIdx = 0, more = true; more; pageIdx++) {
-            const res = await noteApi.list({ page: pageIdx });
-            for (const note of res.items) {
-              items.push({
-                word: note.title,
-                action: {
-                  id: note.id,
-                  token: args.sourceParams.token,
-                },
+          const folders = await folderApi.listAll();
+
+          const dig = async (
+            items: Item<ActionData>[],
+            folders: FolderListAllRes[],
+            pathTo: string,
+          ) => {
+            for (const folder of folders) {
+              folder.children &&
+                await dig(items, folder.children, `${pathTo}/${folder.title}`);
+
+              const notes = await folderApi.notesByFolderId(folder.id);
+              notes.map((e) => {
+                items.push({
+                  word: fullPath
+                    ? `${pathTo}/${folder.title}/${e.title}`
+                    : e.title,
+                  action: {
+                    id: e.id,
+                    name: e.title,
+                    token: args.sourceParams.token,
+                  },
+                });
               });
             }
-            more = res.has_more;
-          }
+          };
+
+          await dig(items, folders, "");
           return items;
         };
 
-        controller.enqueue(await tree());
+        controller.enqueue(await getAllNotes(args.sourceParams.fullPath));
         controller.close();
       },
     });
@@ -54,6 +74,7 @@ export class Source extends BaseSource<Params> {
   override params(): Params {
     return {
       token: "",
+      fullPath: false,
     };
   }
 }
