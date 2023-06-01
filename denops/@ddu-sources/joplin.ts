@@ -45,7 +45,7 @@ export class Source extends BaseSource<Params> {
               folder.children &&
                 await dig(items, folder.children, `${pathTo}/${folder.title}`);
 
-              const notes = await folderApi.notesByFolderId(folder.id);
+              const notes = await folderApi.notesByFolderId(folder.id, ['id', 'parent_id', 'title', 'body', 'is_todo']);
               notes.map((e) => {
                 items.push({
                   word: fullPath
@@ -54,6 +54,8 @@ export class Source extends BaseSource<Params> {
                   action: {
                     id: e.id,
                     name: e.title,
+                    body: e.body,
+                    is_todo: e.is_todo === 0,
                     token: args.sourceParams.token,
                   },
                 });

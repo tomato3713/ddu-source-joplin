@@ -15,10 +15,11 @@ import { config, noteApi } from "https://esm.sh/joplin-api@0.5.1";
 // https://www.npmjs.com/package/joplin-api
 
 export type ActionData = {
-  name?: string;
-  text?: string;
-  id: string;
   token: string;
+  id: string;
+  name: string;
+  body?: string;
+  is_todo: boolean;
 };
 
 export type Params = Record<never, never>;
@@ -33,15 +34,17 @@ export class Kind extends BaseKind<Params> {
     }) => {
       for (const item of args.items) {
         const action = item?.action as ActionData;
-
         config.token = action.token;
 
         const noteRes = await noteApi.get(action.id, [
           "id",
           "title",
           "body",
+          "is_todo",
           "parent_id",
         ]);
+
+        console.log(noteRes);
 
         await args.denops.cmd(`new ${noteRes.title}`);
         await args.denops.call("setline", 1, noteRes.body.split(/\r?\n/));
@@ -60,9 +63,9 @@ export class Kind extends BaseKind<Params> {
             helper.define(
               "BufWriteCmd" as autocmd.AutocmdEvent,
               "<buffer>",
-              `call denops#request('joplin', 'update', [])`,
+              `call denops#request('joplin', 'update', [])`
             );
-          },
+          }
         );
       }
 
