@@ -10,12 +10,15 @@ import {
   config,
   folderApi,
   FolderListAllRes,
+  searchApi,
+  TypeEnum,
 } from "https://esm.sh/joplin-api@0.5.1";
 // https://www.npmjs.com/package/joplin-api
 
 type Params = {
   token: string;
   fullPath: boolean;
+  input: string;
 };
 
 export class Source extends BaseSource<Params> {
@@ -30,9 +33,12 @@ export class Source extends BaseSource<Params> {
   }): ReadableStream<Item<ActionData>[]> {
     return new ReadableStream({
       async start(controller) {
+        const input = args.options.volatile
+          ? args.input
+          : args.sourceParams.input;
         config.token = args.sourceParams.token;
 
-        const getAllNotes = async (fullPath: boolean) => {
+        const getAllNotes = async (fullPath: boolean, searchWord: string) => {
           const items: Item<ActionData>[] = [];
           const folders = await folderApi.listAll();
 
@@ -40,17 +46,40 @@ export class Source extends BaseSource<Params> {
             items: Item<ActionData>[],
             folders: FolderListAllRes[],
             pathTo: string,
+            searchWord: string
           ) => {
             for (const folder of folders) {
               folder.children &&
-                await dig(items, folder.children, `${pathTo}/${folder.title}`);
+                (await dig(
+                  items,
+                  folder.children,
+                  `${pathTo}/${folder.title}`,
+                  searchWord
+                ));
 
-              const notes = await folderApi.notesByFolderId(folder.id, ['id', 'parent_id', 'title', 'body', 'is_todo']);
+              const notes = await folderApi.notesByFolderId(folder.id, [
+                "id",
+                "parent_id",
+                "title",
+                "body",
+                "is_todo",
+              ]);
               notes.map((e) => {
+                // 検索ワードが指定されていて，タイトルと本文に見付からなかった場合はitemsに登録しない。
+                if (
+                  searchWord.length > 0 &&
+                  !e.title.includes(searchWord) &&
+                  !e.body.includes(searchWord)
+                ) {
+                  return;
+                }
                 items.push({
-                  word: fullPath
-                    ? `${pathTo}/${folder.title}/${e.title}`
-                    : e.title,
+                  word:
+                    (fullPath
+                      ? `${pathTo}/${folder.title}/${e.title}`
+                      : e.title) +
+                    ":" +
+                    e.body.substring(0, 50).replace(/\r?\n/g, " "),
                   action: {
                     id: e.id,
                     name: e.title,
@@ -63,11 +92,13 @@ export class Source extends BaseSource<Params> {
             }
           };
 
-          await dig(items, folders, "");
+          await dig(items, folders, "", searchWord);
           return items;
         };
 
-        controller.enqueue(await getAllNotes(args.sourceParams.fullPath));
+        controller.enqueue(
+          await getAllNotes(args.sourceParams.fullPath, input)
+        );
         controller.close();
       },
     });
@@ -76,6 +107,7 @@ export class Source extends BaseSource<Params> {
   override params(): Params {
     return {
       token: "",
+      input: "",
       fullPath: false,
     };
   }
