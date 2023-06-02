@@ -3,15 +3,13 @@ import {
   DduOptions,
   Item,
   SourceOptions,
-} from "https://deno.land/x/ddu_vim@v2.2.0/types.ts";
+} from "https://deno.land/x/ddu_vim@v2.9.2/types.ts";
 import { Denops } from "https://deno.land/x/ddu_vim@v2.2.0/deps.ts";
 import { ActionData } from "../@ddu-kinds/joplin.ts";
 import {
   config,
   folderApi,
   FolderListAllRes,
-  searchApi,
-  TypeEnum,
 } from "https://esm.sh/joplin-api@0.5.1";
 // https://www.npmjs.com/package/joplin-api
 
@@ -33,7 +31,7 @@ export class Source extends BaseSource<Params> {
   }): ReadableStream<Item<ActionData>[]> {
     return new ReadableStream({
       async start(controller) {
-        const input = args.options.volatile
+        const input = args.sourceOptions.volatile
           ? args.input
           : args.sourceParams.input;
         config.token = args.sourceParams.token;
@@ -74,18 +72,18 @@ export class Source extends BaseSource<Params> {
                   return;
                 }
                 items.push({
-                  word:
-                    (fullPath
-                      ? `${pathTo}/${folder.title}/${e.title}`
-                      : e.title) +
-                    ":" +
-                    e.body.substring(0, 50).replace(/\r?\n/g, " "),
-                  action: {
-                    id: e.id,
+                  word: fullPath
+                    ? `${pathTo}/${folder.title}/${e.title}`
+                    : e.title,
+                  data: {
                     name: e.title,
                     body: e.body,
                     is_todo: e.is_todo === 0,
+                  },
+                  action: {
+                    id: e.id,
                     token: args.sourceParams.token,
+                    parent_id: e.parent_id,
                   },
                 });
               });

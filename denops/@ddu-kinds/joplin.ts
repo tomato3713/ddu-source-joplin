@@ -1,26 +1,25 @@
 import {
   ActionFlags,
+  ActionResult,
   Actions,
   BaseKind,
   Context,
   DduItem,
-} from "https://deno.land/x/ddu_vim@v2.8.3/types.ts";
+} from "https://deno.land/x/ddu_vim@v2.9.2/types.ts";
 import {
   autocmd,
   Denops,
   fn,
   op,
   vars,
-} from "https://deno.land/x/ddu_vim@v2.8.3/deps.ts";
+} from "https://deno.land/x/ddu_vim@v2.9.2/deps.ts";
 import { config, noteApi } from "https://esm.sh/joplin-api@0.5.1";
 // https://www.npmjs.com/package/joplin-api
 
 export type ActionData = {
   token: string;
   id: string;
-  name: string;
-  body?: string;
-  is_todo: boolean;
+  parent_id: string;
 };
 
 export type Params = Record<never, never>;
@@ -75,6 +74,53 @@ export class Kind extends BaseKind<Params> {
       }
 
       return ActionFlags.None;
+    },
+    newNote: async (args: {
+      denops: Denops;
+      context: Context;
+      actionParams: unknown;
+      items: DduItem[];
+    }): Promise<ActionFlags | ActionResult> => {
+      const action = args.items[0].action as ActionData;
+
+      const cwd = action.parent_id;
+      const input = await fn.input(args.denops, "Please input note name: ");
+
+      if (input === "") {
+        return ActionFlags.Persist;
+      }
+
+      await noteApi.create({
+        parent_id: cwd,
+        title: input,
+        body: `# ${input}\n`,
+      });
+
+      return ActionFlags.RefreshItems;
+    },
+    newTodo: async (args: {
+      denops: Denops;
+      context: Context;
+      actionParams: unknown;
+      items: DduItem[];
+    }): Promise<ActionFlags | ActionResult> => {
+      const action = args.items[0].action as ActionData;
+
+      const cwd = action.parent_id;
+      const input = await fn.input(args.denops, "Please input todo name: ");
+
+      if (input === "") {
+        return ActionFlags.Persist;
+      }
+
+      await noteApi.create({
+        parent_id: cwd,
+        title: input,
+        is_todo: 1,
+        body: `# ${input}\n`,
+      });
+
+      return ActionFlags.RefreshItems;
     },
   };
   override params(): Params {
