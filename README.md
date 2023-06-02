@@ -12,6 +12,12 @@ https://github.com/vim-denops/denops.vim
 
 https://github.com/Shougo/ddu.vim
 
+### ddu-kind-joplin
+
+ddu-source-joplin collects and passes items of the 'joplin' kind, so requires a 'joplin' kind plugin.
+
+https://github.com/tomato3713/ddu-kind-joplin
+
 ### Joplin
 
 https://github.com/laurent22/joplin/
