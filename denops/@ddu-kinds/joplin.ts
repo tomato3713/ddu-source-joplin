@@ -8,6 +8,7 @@ import {
 import {
   autocmd,
   Denops,
+  fn,
   op,
   vars,
 } from "https://deno.land/x/ddu_vim@v2.8.3/deps.ts";
@@ -44,10 +45,13 @@ export class Kind extends BaseKind<Params> {
           "parent_id",
         ]);
 
-        console.log(noteRes);
-
         await args.denops.cmd(`new ${noteRes.title}`);
         await args.denops.call("setline", 1, noteRes.body.split(/\r?\n/));
+        // clear undo history.
+        const old_ul = await op.undolevels.getLocal(args.denops);
+        await op.undolevels.setLocal(args.denops, -1);
+        await fn.feedkeys(args.denops, "a \x08", "x");
+        await op.undolevels.setLocal(args.denops, old_ul);
 
         await vars.b.set(args.denops, "joplin_note_id", noteRes.id);
         await vars.b.set(args.denops, "joplin_note_title", noteRes.title);
@@ -55,6 +59,7 @@ export class Kind extends BaseKind<Params> {
         await op.bufhidden.setLocal(args.denops, "");
         await op.modified.setLocal(args.denops, false);
         await op.filetype.setLocal(args.denops, "markdown");
+
         // 書き込みイベントを起点にして，/denops/joplin/main.tsで定義したAPIを実行する．
         await autocmd.group(
           args.denops,
