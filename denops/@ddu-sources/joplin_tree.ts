@@ -46,7 +46,7 @@ export class Source extends BaseSource<Params> {
 
           for (const e of ret) {
             items.push({
-              word: e.title,
+              word: e.title.replace(/\//g, "／"),
               isTree: true,
               treePath: join(basePath, e.id) + "/",
               data: {
@@ -69,7 +69,7 @@ export class Source extends BaseSource<Params> {
             ]);
             for (const note of notes) {
               items.push({
-                word: note.title,
+                word: note.title.replace(/\//g, "／"),
                 isTree: false,
                 treePath: join(basePath, note.id),
                 data: {

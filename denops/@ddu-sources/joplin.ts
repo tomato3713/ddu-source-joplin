@@ -73,8 +73,11 @@ export class Source extends BaseSource<Params> {
                 }
                 items.push({
                   word: fullPath
-                    ? `${pathTo}/${folder.title}/${e.title}`
-                    : e.title,
+                    ? `${pathTo}/${folder.title}/${e.title.replace(
+                        /\//g,
+                        "／"
+                      )}`
+                    : e.title.replace(/\//g, "／"),
                   data: {
                     name: e.title,
                     body: e.body,
