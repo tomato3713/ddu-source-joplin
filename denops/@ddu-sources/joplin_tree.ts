@@ -46,7 +46,7 @@ export class Source extends BaseSource<Params> {
 
           for (const e of ret) {
             items.push({
-              word: e.title.replace(/\//g, "／"),
+              word: escapeTitle(e.title),
               isTree: true,
               treePath: join(basePath, e.id) + "/",
               data: {
@@ -69,7 +69,7 @@ export class Source extends BaseSource<Params> {
             ]);
             for (const note of notes) {
               items.push({
-                word: note.title.replace(/\//g, "／"),
+                word: escapeTitle(note.title),
                 isTree: false,
                 treePath: join(basePath, note.id),
                 data: {
@@ -121,4 +121,9 @@ const search = (
     }
   }
   return [];
+};
+
+const escapeTitle = (str: string): string => {
+  // ddu-column-filenameなどを使うときにスラッシュがあるとスラッシュ以降がファイル名として表示されてしまう．なので，全角で置換しておく．
+  return str.replace(/\//g, "／");
 };
