@@ -15,6 +15,7 @@ Params              |ddu-source-joplin-params|
 INTRODUCTION                                    *ddu-source-joplin-introduction*
 
 This source implements joplin operations.
+'joplin_tree' source is supported tree feature.
 
 
 ==============================================================================
@@ -31,9 +32,12 @@ EXAMPLES                                         *ddu-source-joplin-examples*
 
 >
     call ddu#start(#{ sources: [#{ name: 'joplin' }] })
+    call ddu#start(#{ sources: [#{ name: 'joplin_tree' }] })
     call ddu#custom#patch_global(#{
         \   sourceParams: #{
         \     joplin: #{ 
+        \       token: 'JOPLIN_TOKEN_XXXX',
+        \     joplin_tree: #{
         \       token: 'JOPLIN_TOKEN_XXXX',
         \     },
         \   },
