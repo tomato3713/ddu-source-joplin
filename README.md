@@ -28,7 +28,7 @@ Replace JOPLIN_TOKEN_XXXX with Auth token.
 Open configuration screen with `Ctrl` + `,` or `Cmd` + `,`.
 Go to the Web Clipper tab and copy the Auth Token.
 
-```
+```vim
 call ddu#custom#patch_global(#{
     \   sources: [
     \       #{name: 'joplin'},
