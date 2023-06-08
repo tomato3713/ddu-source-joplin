@@ -5,7 +5,7 @@ import {
   SourceOptions,
 } from "https://deno.land/x/ddu_vim@v2.9.2/types.ts";
 import { Denops } from "https://deno.land/x/ddu_vim@v2.2.0/deps.ts";
-import { ActionData } from "https://deno.land/x/ddu_kind_joplin@v0.1.0/denops/@ddu-kinds/joplin.ts";
+import { ActionData } from "https://deno.land/x/ddu_kind_joplin@v0.1.2/denops/@ddu-kinds/joplin.ts";
 import {
   config,
   folderApi,
@@ -77,15 +77,13 @@ export class Source extends BaseSource<Params> {
                         e.title
                       )}`
                     : escapeTitle(e.title),
-                  data: {
-                    name: e.title,
-                    body: e.body,
-                    is_todo: e.is_todo === 0,
-                  },
                   action: {
                     id: e.id,
                     token: args.sourceParams.token,
                     parent_id: e.parent_id,
+                    isFolder: false,
+                    title: e.title,
+                    is_todo: e.is_todo === 0,
                   },
                 });
               });

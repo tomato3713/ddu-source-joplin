@@ -6,7 +6,7 @@ import {
 } from "https://deno.land/x/ddu_vim@v2.9.2/types.ts";
 import { Denops } from "https://deno.land/x/ddu_vim@v2.2.0/deps.ts";
 import { basename, join } from "https://deno.land/std@0.190.0/path/mod.ts";
-import { ActionData } from "https://deno.land/x/ddu_kind_joplin@v0.1.0/denops/@ddu-kinds/joplin.ts";
+import { ActionData } from "https://deno.land/x/ddu_kind_joplin@v0.1.2/denops/@ddu-kinds/joplin.ts";
 import {
   config,
   folderApi,
@@ -49,13 +49,13 @@ export class Source extends BaseSource<Params> {
               word: escapeTitle(e.title),
               isTree: true,
               treePath: join(basePath, e.id) + "/",
-              data: {
-                name: e.title,
-              },
               action: {
                 id: e.id,
                 token: args.sourceParams.token,
                 parent_id: e.parent_id,
+                isFolder: true,
+                title: e.title,
+                is_todo: false,
               },
             });
           }
@@ -72,15 +72,13 @@ export class Source extends BaseSource<Params> {
                 word: escapeTitle(note.title),
                 isTree: false,
                 treePath: join(basePath, note.id),
-                data: {
-                  name: note.title,
-                  body: note,
-                  is_todo: note.is_todo === 0,
-                },
                 action: {
                   id: note.id,
                   token: args.sourceParams.token,
                   parent_id: note.parent_id,
+                  is_todo: note.is_todo === 0,
+                  isFolder: false,
+                  title: note.title,
                 },
               });
             }
