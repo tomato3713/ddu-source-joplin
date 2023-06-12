@@ -51,7 +51,7 @@ export class Source extends BaseSource<Params> {
                 (await dig(
                   items,
                   folder.children,
-                  `${pathTo}/${escapeTitle(folder.title)}`,
+                  `${pathTo}/${folder.title}`,
                   searchWord
                 ));
 
@@ -73,10 +73,8 @@ export class Source extends BaseSource<Params> {
                 }
                 items.push({
                   word: fullPath
-                    ? `${pathTo}/${escapeTitle(folder.title)}/${escapeTitle(
-                        e.title
-                      )}`
-                    : escapeTitle(e.title),
+                    ? `${pathTo}/${folder.title}/${e.title}`
+                    : e.title,
                   action: {
                     id: e.id,
                     token: args.sourceParams.token,
@@ -110,7 +108,3 @@ export class Source extends BaseSource<Params> {
     };
   }
 }
-
-const escapeTitle = (str: string): string => {
-  return str.replace(/\//g, "／");
-};
