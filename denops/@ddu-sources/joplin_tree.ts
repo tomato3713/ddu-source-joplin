@@ -32,8 +32,6 @@ export class Source extends BaseSource<Params> {
   }): ReadableStream<Item<ActionData>[]> {
     return new ReadableStream({
       async start(controller) {
-        console.log(args.sourceOptions);
-
         config.token = args.sourceParams.token;
         const basePath = args.sourceOptions.path;
 
@@ -114,8 +112,9 @@ const search = (
   if (target.length === 0) return folders;
   for (const folder of folders) {
     if (folder.id === target) return folder.children ?? [];
-    else {
-      return folder.children ? search(folder.children, target) : [];
+    if (folder.children) {
+      const res = search(folder.children, target);
+      if (res.length != 0) return res;
     }
   }
   return [];
