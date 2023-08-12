@@ -5,7 +5,7 @@ import {
   SourceOptions,
 } from "https://deno.land/x/ddu_vim@v3.5.0/types.ts";
 import { Denops } from "https://deno.land/x/ddu_vim@v3.5.0/deps.ts";
-import { ActionData } from "https://deno.land/x/ddu_kind_joplin@v0.1.6/denops/@ddu-kinds/joplin.ts";
+import { ActionData } from "https://deno.land/x/ddu_kind_joplin@v0.1.7/denops/@ddu-kinds/joplin.ts";
 import {
   config,
   folderApi,
