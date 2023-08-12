@@ -3,9 +3,9 @@ import {
   DduOptions,
   Item,
   SourceOptions,
-} from "https://deno.land/x/ddu_vim@v2.9.2/types.ts";
-import { Denops } from "https://deno.land/x/ddu_vim@v2.2.0/deps.ts";
-import { ActionData } from "https://deno.land/x/ddu_kind_joplin@v0.1.2/denops/@ddu-kinds/joplin.ts";
+} from "https://deno.land/x/ddu_vim@v3.5.0/types.ts";
+import { Denops } from "https://deno.land/x/ddu_vim@v3.5.0/deps.ts";
+import { ActionData } from "https://deno.land/x/ddu_kind_joplin@v0.1.6/denops/@ddu-kinds/joplin.ts";
 import {
   config,
   folderApi,
@@ -44,7 +44,7 @@ export class Source extends BaseSource<Params> {
             items: Item<ActionData>[],
             folders: FolderListAllRes[],
             pathTo: string,
-            searchWord: string
+            searchWord: string,
           ) => {
             for (const folder of folders) {
               folder.children &&
@@ -52,7 +52,7 @@ export class Source extends BaseSource<Params> {
                   items,
                   folder.children,
                   `${pathTo}/${folder.title}`,
-                  searchWord
+                  searchWord,
                 ));
 
               const notes = await folderApi.notesByFolderId(folder.id, [
@@ -61,6 +61,8 @@ export class Source extends BaseSource<Params> {
                 "title",
                 "body",
                 "is_todo",
+                "todo_completed",
+                "todo_due",
               ]);
               notes.map((e) => {
                 // 検索ワードが指定されていて，タイトルと本文に見付からなかった場合はitemsに登録しない。
@@ -82,6 +84,8 @@ export class Source extends BaseSource<Params> {
                     isFolder: false,
                     title: e.title,
                     is_todo: e.is_todo === 0,
+                    todo_completed: e.todo_completed === 0,
+                    todo_due: e.todo_due === 0,
                   },
                 });
               });
@@ -93,7 +97,7 @@ export class Source extends BaseSource<Params> {
         };
 
         controller.enqueue(
-          await getAllNotes(args.sourceParams.fullPath, input)
+          await getAllNotes(args.sourceParams.fullPath, input),
         );
         controller.close();
       },

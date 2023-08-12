@@ -3,10 +3,9 @@ import {
   DduOptions,
   Item,
   SourceOptions,
-} from "https://deno.land/x/ddu_vim@v2.9.2/types.ts";
-import { Denops } from "https://deno.land/x/ddu_vim@v2.2.0/deps.ts";
-import { basename, join } from "https://deno.land/std@0.190.0/path/mod.ts";
-import { ActionData } from "https://deno.land/x/ddu_kind_joplin@v0.1.2/denops/@ddu-kinds/joplin.ts";
+} from "https://deno.land/x/ddu_vim@v3.5.0/types.ts";
+import { Denops } from "https://deno.land/x/ddu_vim@v3.5.0/deps.ts";
+import { ActionData } from "https://deno.land/x/ddu_kind_joplin@v0.1.6/denops/@ddu-kinds/joplin.ts";
 import {
   config,
   folderApi,
@@ -33,11 +32,13 @@ export class Source extends BaseSource<Params> {
     return new ReadableStream({
       async start(controller) {
         config.token = args.sourceParams.token;
-        const basePath = args.sourceOptions.path;
+        const treePath = args.sourceOptions.path;
 
-        const getAllNotes = async (basePath: string) => {
+        const getAllNotes = async (treePath: string[]) => {
           const items: Item<ActionData>[] = [];
-          const folderName = basename(basePath);
+          const folderName: string = treePath.length === 1
+            ? ""
+            : treePath[treePath.length - 1];
 
           const folders = await folderApi.listAll();
           const ret = search(folders, folderName);
@@ -46,7 +47,7 @@ export class Source extends BaseSource<Params> {
             items.push({
               word: e.title,
               isTree: true,
-              treePath: join(basePath, e.id) + "/",
+              treePath: [...treePath, e.id],
               action: {
                 id: e.id,
                 token: args.sourceParams.token,
@@ -54,6 +55,8 @@ export class Source extends BaseSource<Params> {
                 isFolder: true,
                 title: e.title,
                 is_todo: false,
+                todo_due: false,
+                todo_completed: false,
               },
             });
           }
@@ -64,12 +67,14 @@ export class Source extends BaseSource<Params> {
               "id",
               "is_todo",
               "parent_id",
+              "todo_due",
+              "todo_completed",
             ]);
             for (const note of notes) {
               items.push({
                 word: note.title,
                 isTree: false,
-                treePath: join(basePath, note.id),
+                treePath: [...treePath, note.id],
                 action: {
                   id: note.id,
                   token: args.sourceParams.token,
@@ -77,6 +82,8 @@ export class Source extends BaseSource<Params> {
                   is_todo: note.is_todo === 0,
                   isFolder: false,
                   title: note.title,
+                  todo_due: note.todo_due === 0,
+                  todo_completed: note.todo_completed === 0,
                 },
               });
             }
@@ -85,10 +92,10 @@ export class Source extends BaseSource<Params> {
           return items;
         };
 
-        if (basePath.length === 0 || basePath.endsWith("/")) {
-          controller.enqueue(await getAllNotes(basePath));
+        if (typeof (treePath) === "string") {
+          controller.enqueue(await getAllNotes(["/"] as string[]));
         } else {
-          console.log(`not folder`);
+          controller.enqueue(await getAllNotes(treePath as string[]));
         }
         controller.close();
       },
@@ -107,7 +114,7 @@ export class Source extends BaseSource<Params> {
 // 対象を見付ける
 const search = (
   folders: FolderListAllRes[],
-  target: string
+  target: string,
 ): FolderListAllRes[] => {
   if (target.length === 0) return folders;
   for (const folder of folders) {
