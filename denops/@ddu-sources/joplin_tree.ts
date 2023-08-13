@@ -79,11 +79,11 @@ export class Source extends BaseSource<Params> {
                   id: note.id,
                   token: args.sourceParams.token,
                   parent_id: note.parent_id,
-                  is_todo: note.is_todo === 0,
+                  is_todo: note.is_todo != 0,
                   isFolder: false,
                   title: note.title,
-                  todo_due: note.todo_due === 0,
-                  todo_completed: note.todo_completed === 0,
+                  todo_due: note.todo_due != 0,
+                  todo_completed: note.todo_completed != 0,
                 },
               });
             }

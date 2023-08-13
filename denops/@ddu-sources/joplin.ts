@@ -83,9 +83,9 @@ export class Source extends BaseSource<Params> {
                     parent_id: e.parent_id,
                     isFolder: false,
                     title: e.title,
-                    is_todo: e.is_todo === 0,
-                    todo_completed: e.todo_completed === 0,
-                    todo_due: e.todo_due === 0,
+                    is_todo: e.is_todo != 0,
+                    todo_completed: e.todo_completed != 0,
+                    todo_due: e.todo_due != 0,
                   },
                 });
               });
