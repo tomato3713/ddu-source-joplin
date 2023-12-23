@@ -3,8 +3,8 @@ import {
   DduOptions,
   Item,
   SourceOptions,
-} from "https://deno.land/x/ddu_vim@v3.5.0/types.ts";
-import { Denops } from "https://deno.land/x/ddu_vim@v3.5.0/deps.ts";
+} from "https://deno.land/x/ddu_vim@v3.8.1/types.ts";
+import { Denops } from "https://deno.land/x/ddu_vim@v3.8.1/deps.ts";
 import { ActionData } from "https://deno.land/x/ddu_kind_joplin@v0.1.7/denops/@ddu-kinds/joplin.ts";
 import {
   config,
